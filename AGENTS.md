@@ -32,9 +32,14 @@ This version has breaking changes — APIs, conventions, and file structure may 
   - Header: `Authorization: Bearer <token>`
   - Headers: `Content-Type: application/json`, `Accept: application/json`
   - *Vigencia:* El token se renueva cada 30 días. Debe gestionarse exclusivamente vía variable de entorno (`MCP_INVENTORY_TOKEN`).
-- **Herramientas Disponibles en el MCP:**
-  1. `get_property_detail`: Obtiene detalle público de una propiedad por su `property_code` (ej: `BIR-590`, `BIV-1095`, `LR-020`, `OC-1015`).
-  2. `search_space_need`: Busca inventario vigente mediante consulta de lenguaje natural (ej. *"bodega de 500 m2 en León"*).
+  - *Alerta Preventiva:* El sistema analiza la fecha `exp` del JWT y muestra una advertencia preventiva en la UI cuando faltan 5 días o menos para el vencimiento.
+- **Herramientas Disponibles en el MCP y Cuándo Usarlas:**
+  1. `get_property_detail(property_code)`:
+     - *Cuándo usarla:* Cuando se consulta una propiedad específica por su código (`BIR-`, `BIV-`, `LR-`, `OC-`, `TIV-`, etc.).
+     - *Módulos:* Creative Area, Fotos, Procesadores Asiáticos (Mandarín/Japonés) y Servidor MCP ikasi-cmo.
+  2. `search_space_need(query)`:
+     - *Cuándo usarla:* Para buscar comparables de mercado por lenguaje natural (ej: *"bodega de 500 m2 en León"*).
+     - *Módulos:* Opinión de Valor Inteligente (Chat de Valuación).
 - **Formato y Normalización de Respuestas:**
   - Las respuestas del MCP vienen serializadas dentro del envoltorio FastMCP `result.content[0].text`.
   - El sistema usa `normalizePropertyData()` con prioridad de alias multilingües (Español / Inglés) según el tipo de inmueble:

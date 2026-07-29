@@ -27,6 +27,7 @@ export default function PropertyTestPanel() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<PropertyDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [tokenWarning, setTokenWarning] = useState<string | null>(null);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,10 +36,15 @@ export default function PropertyTestPanel() {
     setLoading(true);
     setError(null);
     setResult(null);
+    setTokenWarning(null);
 
     try {
       const res = await fetch(`/api/mcp/property?code=${encodeURIComponent(code.trim())}`);
       const json = await res.json();
+
+      if (json.tokenStatus?.warning) {
+        setTokenWarning(json.tokenStatus.warning);
+      }
 
       if (!res.ok || !json.success) {
         setError(json.error || 'No se pudo obtener la propiedad del MCP.');
@@ -89,6 +95,17 @@ export default function PropertyTestPanel() {
           Consultar MCP
         </button>
       </form>
+
+      {/* Banner Preventivo de Expiración de Token JWT */}
+      {tokenWarning && (
+        <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-sm flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+          <div>
+            <p className="font-semibold text-amber-300">Aviso Preventivo de Token MCP:</p>
+            <p className="text-xs text-amber-200/90 mt-1">{tokenWarning}</p>
+          </div>
+        </div>
+      )}
 
       {/* Estado de Error */}
       {error && (

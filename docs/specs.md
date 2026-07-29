@@ -44,9 +44,17 @@
   - Header: `Authorization: Bearer <token>`
   - Headers requeridos: `Content-Type: application/json`, `Accept: application/json`
   - Manejo de token: Almacenado como variable de entorno segura (`MCP_INVENTORY_TOKEN`), renovable cada 30 días.
-- **Herramientas Expuestas por el MCP:**
-  1. `get_property_detail(property_code)`: Consulta el detalle público de una propiedad por su código (ej: `BIR-590`, `BIV-1095`, `LR-020`, `OC-1015`). Retorna información de inventario vigente.
-  2. `search_space_need`: Permite buscar inventario vigente por lenguaje natural o características (ej. "bodega de 500 m2 en León").
+  - **Inspector Preventivo de Expiración (`getTokenStatus()`):** `ikasi-cmo` analiza preventivamente la marca de tiempo `exp` del JWT. Si faltan 5 días o menos para el vencimiento, emite automáticamente un aviso preventivo en la UI alertando los días restantes y la fecha exacta de expiración para renovar la credencial en `.env` antes del corte de servicio.
+- **Herramientas Expuestas por el MCP y Matriz de Uso en ikasi-cmo:**
+  1. `get_property_detail(property_code: string)`
+     - **Cuándo usarla:** Siempre que el usuario o el módulo tengan un código específico de propiedad (`BIR-XXX`, `BIV-XXX`, `LR-XXX`, `OC-XXX`, `TIV-XXX`, `CRV-XXX`, etc.).
+     - **Cómo la usa el sistema:** Invocación directa JSON-RPC 2.0. El resultado se procesa mediante `normalizePropertyData()` para alimentar a los motores de copy, piezas de redes, afiches multilingües y fichas técnicas.
+     - **Módulos que la usan:** Creative Area, Editor de Fotos, Procesadores Asiáticos (Mandarín/Japonés) y Servidor MCP de ikasi-cmo (Fase 3).
+  
+  2. `search_space_need(query: string)`
+     - **Cuándo usarla:** Únicamente durante la búsqueda de comparables de mercado en lenguaje natural dentro del módulo de Opinión de Valor o consultas exploratorias.
+     - **Cómo la usa el sistema:** El usuario o el asistente de IA envía una consulta (ej. *"bodega de 500 m2 en León"*, *"nave industrial en Guanajuato Puerto Interior"*), el MCP busca en el inventario vigente y devuelve la lista de propiedades coincidentes para que el usuario o la IA seleccionen los comparables.
+     - **Módulos que la usan:** Opinión de Valor Inteligente (Chat UI de Valuación).
 
 #### Mapeo de Hallazgos y Esquema de Datos por Categoría de Activo:
 Tras la inspección de muestras de producción (`BIR-`, `BIV-`, `LR-`, `OC-`), se especifican las siguientes reglas de normalización:

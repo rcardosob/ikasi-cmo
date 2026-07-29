@@ -13,5 +13,10 @@ export async function GET(request: NextRequest) {
   }
 
   const result = await mcpClient.getPropertyDetail(propertyCode);
-  return NextResponse.json(result);
+  const tokenStatus = mcpClient.getTokenStatus();
+
+  return NextResponse.json({
+    ...result,
+    tokenStatus,
+  });
 }

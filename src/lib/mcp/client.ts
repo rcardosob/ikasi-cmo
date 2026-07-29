@@ -101,6 +101,13 @@ export interface MCPResponse<T> {
   error?: string;
 }
 
+export interface MCPTokenStatus {
+  valid: boolean;
+  expiresAt: Date | null;
+  daysRemaining: number | null;
+  warning: string | null;
+}
+
 export class IkasiMCPClient {
   private endpoint: string;
   private token: string;
@@ -108,6 +115,62 @@ export class IkasiMCPClient {
   constructor() {
     this.endpoint = process.env.MCP_INVENTORY_URL || process.env.IKASI_MCP_ENDPOINT || 'https://inventorydb-mcp.industrialrealtor.app/mcp';
     this.token = process.env.MCP_INVENTORY_TOKEN || process.env.IKASI_MCP_BEARER_TOKEN || '';
+  }
+
+  /**
+   * Inspección preventiva de expiración del token JWT del MCP.
+   * Decodifica la marca de tiempo 'exp' sin requerir librerías externas.
+   */
+  getTokenStatus(): MCPTokenStatus {
+    if (!this.token) {
+      return { valid: false, expiresAt: null, daysRemaining: null, warning: 'No se ha configurado token MCP_INVENTORY_TOKEN en el entorno.' };
+    }
+
+    try {
+      const parts = this.token.split('.');
+      if (parts.length !== 3) {
+        return { valid: true, expiresAt: null, daysRemaining: null, warning: null };
+      }
+
+      const payloadJson = Buffer.from(parts[1], 'base64url').toString('utf8');
+      const payload = JSON.parse(payloadJson) as { exp?: number };
+
+      if (!payload.exp) {
+        return { valid: true, expiresAt: null, daysRemaining: null, warning: null };
+      }
+
+      const expDate = new Date(payload.exp * 1000);
+      const now = new Date();
+      const diffMs = expDate.getTime() - now.getTime();
+      const daysRemaining = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+      if (diffMs <= 0) {
+        return {
+          valid: false,
+          expiresAt: expDate,
+          daysRemaining: 0,
+          warning: 'CRÍTICO: El token del MCP de IKASI ya ha expirado. Genera uno nuevo.',
+        };
+      }
+
+      if (daysRemaining <= 5) {
+        return {
+          valid: true,
+          expiresAt: expDate,
+          daysRemaining,
+          warning: `ADVERTENCIA: El token del MCP de IKASI vencerá en ${daysRemaining} día(s) (el ${expDate.toLocaleDateString()}). Renueva el token en .env`,
+        };
+      }
+
+      return {
+        valid: true,
+        expiresAt: expDate,
+        daysRemaining,
+        warning: null,
+      };
+    } catch {
+      return { valid: true, expiresAt: null, daysRemaining: null, warning: null };
+    }
   }
 
   private getHeaders() {
