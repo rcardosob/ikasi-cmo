@@ -1,3 +1,9 @@
+<!-- BEGIN:nextjs-agent-rules -->
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
+<!-- END:nextjs-agent-rules -->
+
 # AGENTS.md — ikasi-cmo
 
 > **Proyecto:** ikasi-cmo  
@@ -25,7 +31,7 @@
 - **Autenticación requerida:**
   - Header: `Authorization: Bearer <token>`
   - Headers: `Content-Type: application/json`, `Accept: application/json`
-  - *Vigencia:* El token se renueva cada 30 días. Debe gestionarse exclusivamente vía variable de entorno (`IKASI_MCP_BEARER_TOKEN`).
+  - *Vigencia:* El token se renueva cada 30 días. Debe gestionarse exclusivamente vía variable de entorno (`MCP_INVENTORY_TOKEN`).
 - **Herramientas Disponibles en el MCP:**
   1. `get_property_detail`: Obtiene detalle público de una propiedad por su `property_code` (ej: `BIR-590`).
   2. `search_space_need`: Busca inventario vigente mediante consulta de lenguaje natural (ej. *"bodega de 500 m2 en León"*).

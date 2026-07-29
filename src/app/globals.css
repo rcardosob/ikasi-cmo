@@ -1,0 +1,93 @@
+@import "tailwindcss";
+
+:root {
+  --bg-base-darkest: #050205;
+  --bg-base-deep: #140919;
+  --bg-base-medium: #23162e;
+  --bg-base-cool: #2e2b4d;
+  --bg-base-malva: #4e325c;
+
+  --text-primary: #f8f8fa;
+  --text-secondary: #b0afb8;
+  --accent-gold-rose: #cf9c8c;
+}
+
+body {
+  background-color: var(--bg-base-darkest);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Custom Utilities for Ikasi Brand Palette */
+.bg-ikasi-darkest { background-color: var(--bg-base-darkest); }
+.bg-ikasi-deep { background-color: var(--bg-base-deep); }
+.bg-ikasi-medium { background-color: var(--bg-base-medium); }
+.bg-ikasi-cool { background-color: var(--bg-base-cool); }
+.bg-ikasi-malva { background-color: var(--bg-base-malva); }
+
+.text-ikasi-primary { color: var(--text-primary); }
+.text-ikasi-secondary { color: var(--text-secondary); }
+.text-ikasi-accent { color: var(--accent-gold-rose); }
+.border-ikasi-cool { border-color: var(--bg-base-cool); }
+.border-ikasi-malva { border-color: var(--bg-base-malva); }
+
+/* Target Cursor Component Styles */
+.target-cursor-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 9999;
+  mix-blend-mode: difference;
+  transform: translate(-50%, -50%);
+}
+
+.target-cursor-dot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 4px;
+  height: 4px;
+  background: #fff;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  will-change: transform;
+}
+
+.target-cursor-corner {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  border: 3px solid #fff;
+  will-change: transform;
+}
+
+.corner-tl {
+  transform: translate(-150%, -150%);
+  border-right: none;
+  border-bottom: none;
+}
+
+.corner-tr {
+  transform: translate(50%, -150%);
+  border-left: none;
+  border-bottom: none;
+}
+
+.corner-br {
+  transform: translate(50%, 50%);
+  border-left: none;
+  border-top: none;
+}
+
+.corner-bl {
+  transform: translate(-150%, 50%);
+  border-right: none;
+  border-top: none;
+}

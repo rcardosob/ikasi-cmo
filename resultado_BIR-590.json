@@ -1,0 +1,34 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\n  \"request_id\": \"6e065531-e606-4a7d-a4ab-bc1d0505581b\",\n  \"property\": {\n    \"property_code\": \"BIR-590\",\n    \"property_name\": \"GUANAJUATO PUERTO INTERIOR\",\n    \"commercial_title\": \"INDUSTRIAL WAREHOUSE FOR LEASE\",\n    \"asset_category\": \"industrial_warehouse\",\n    \"transaction_type\": \"lease\",\n    \"address\": \"Guanajuato Puerto Interior\",\n    \"industrial_park\": \"Guanajuato Puerto Interior\"\n  },\n  \"units\": [\n    {\n      \"unit_type\": \"warehouse\",\n      \"available_area_m2\": 1992.5,\n      \"available_area_sqft\": 21447.1,\n      \"clear_height_m\": 7.9,\n      \"clear_height_ft\": 26,\n      \"dock_doors\": 1,\n      \"ramps\": 1,\n      \"parking_spaces\": 108,\n      \"price_note\": \"for pricing, please contact us\"\n    }\n  ]\n}"
+    }
+  ],
+  "structuredContent": {
+    "request_id": "6e065531-e606-4a7d-a4ab-bc1d0505581b",
+    "property": {
+      "property_code": "BIR-590",
+      "property_name": "GUANAJUATO PUERTO INTERIOR",
+      "commercial_title": "INDUSTRIAL WAREHOUSE FOR LEASE",
+      "asset_category": "industrial_warehouse",
+      "transaction_type": "lease",
+      "address": "Guanajuato Puerto Interior",
+      "industrial_park": "Guanajuato Puerto Interior"
+    },
+    "units": [
+      {
+        "unit_type": "warehouse",
+        "available_area_m2": 1992.5,
+        "available_area_sqft": 21447.1,
+        "clear_height_m": 7.9,
+        "clear_height_ft": 26,
+        "dock_doors": 1,
+        "ramps": 1,
+        "parking_spaces": 108,
+        "price_note": "for pricing, please contact us"
+      }
+    ]
+  },
+  "isError": false
+}
