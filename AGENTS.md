@@ -33,8 +33,19 @@ This version has breaking changes — APIs, conventions, and file structure may 
   - Headers: `Content-Type: application/json`, `Accept: application/json`
   - *Vigencia:* El token se renueva cada 30 días. Debe gestionarse exclusivamente vía variable de entorno (`MCP_INVENTORY_TOKEN`).
 - **Herramientas Disponibles en el MCP:**
-  1. `get_property_detail`: Obtiene detalle público de una propiedad por su `property_code` (ej: `BIR-590`).
+  1. `get_property_detail`: Obtiene detalle público de una propiedad por su `property_code` (ej: `BIR-590`, `BIV-1095`, `LR-020`, `OC-1015`).
   2. `search_space_need`: Busca inventario vigente mediante consulta de lenguaje natural (ej. *"bodega de 500 m2 en León"*).
+- **Formato y Normalización de Respuestas:**
+  - Las respuestas del MCP vienen serializadas dentro del envoltorio FastMCP `result.content[0].text`.
+  - El sistema usa `normalizePropertyData()` con prioridad de alias multilingües (Español / Inglés) según el tipo de inmueble:
+    - **`BIR-` (Naves en Renta):** `industrial_warehouse` (`available_area_m2`, `dock_doors`, `clear_height_m`, `ramps`).
+    - **`BIV-` (Naves en Venta):** `industrial_warehouse` / `industrial_land`.
+    - **`TIV-` (Terrenos Industriales/Comerciales en Venta):** `industrial_land` / `commercial_land`.
+    - **`LR-` / `LV-` / `LCV-` (Locales Renta / Venta):** `commercial_space`.
+    - **`OC-` (Oficinas Renta / Venta):** `office_space`.
+    - **`CRR-` / `CRV-` (Casas Residenciales Renta / Venta):** `residential_house`.
+    - **`DRR-` / `DRV-` (Departamentos Renta / Venta):** `residential_apartment`.
+    - **`TRV-` (Terreno Residencial en Venta):** `residential_land`.
 
 ### Alcance y Límites del MCP (Lo que NO puede hacer):
 - Solo lectura de inventario vigente.

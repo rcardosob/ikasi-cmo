@@ -43,13 +43,37 @@
 - **Transporte / Autenticación:** 
   - Header: `Authorization: Bearer <token>`
   - Headers requeridos: `Content-Type: application/json`, `Accept: application/json`
-  - Manejo de token: Almacenado como variable de entorno segura (`IKASI_MCP_BEARER_TOKEN`), renovable cada 30 días.
+  - Manejo de token: Almacenado como variable de entorno segura (`MCP_INVENTORY_TOKEN`), renovable cada 30 días.
 - **Herramientas Expuestas por el MCP:**
-  1. `get_property_detail(property_code)`: Consulta el detalle público de una propiedad por su código (ej: `BIR-590`). Retorna información de inventario vigente (área, precio, ubicación, servicios, especificaciones técnicas).
+  1. `get_property_detail(property_code)`: Consulta el detalle público de una propiedad por su código (ej: `BIR-590`, `BIV-1095`, `LR-020`, `OC-1015`). Retorna información de inventario vigente.
   2. `search_space_need`: Permite buscar inventario vigente por lenguaje natural o características (ej. "bodega de 500 m2 en León").
-- **Flujo en ikasi-cmo:** 
-  - `ikasi-cmo` invoca `get_property_detail` pasando el `property_code` ingresado por el usuario.
-  - Recibe el JSON con la ficha técnica pública oficial para alimentar a los generadores de copy, imágenes, flyers multilingües y valuaciones.
+
+#### Mapeo de Hallazgos y Esquema de Datos por Categoría de Activo:
+Tras la inspección de muestras de producción (`BIR-`, `BIV-`, `LR-`, `OC-`), se especifican las siguientes reglas de normalización:
+
+- **Envoltorio del Protocolo (FastMCP Wrapper):**
+  Toda respuesta del MCP viene envuelta en `result.content[0].text` como un JSON serializado. `ikasi-cmo` realiza un des-empaquetado automático mediante `normalizePropertyData()`.
+
+- **Matriz de Campos por Tipo de Propiedad y Prefijo:**
+  | Prefijo | Categoría / Descripción de Activo | Métricas Clave Leídas | Notas / Comportamiento |
+  | :--- | :--- | :--- | :--- |
+  | **`BIR-`** | Bodega / Nave Industrial en Renta | `address`, `available_area_m2`, `dock_doors`, `clear_height_m`, `ramps`, `kva` | Industrial Renta. |
+  | **`BIV-`** | Bodega / Nave Industrial en Venta | `address`, `available_area_m2`, `dock_doors`, `clear_height_m`, `price_note` | Industrial Venta. |
+  | **`TIV-`** | Terreno Industrial / Comercial en Venta | `address`, `available_area_m2` / `surface_m2`, `price_note` | Terrenos Industriales/Comerciales en Venta. |
+  | **`LR-`** | Local Comercial en Renta | `address`, `available_area_m2`, `parking_spaces`, `price_note` | Andenes/Rampas retornan `N/A`. |
+  | **`LV-` / `LCV-`** | Local Comercial en Venta | `address`, `available_area_m2`, `parking_spaces`, `price_note` | Locales en Venta (mismo uso comercial). |
+  | **`OC-`** | Oficina Corporativa en Renta / Venta | `address`, `available_area_m2`, `parking_spaces`, `price_note` | Oficinas Corporativas. |
+  | **`CRR-`** | Casa Residencial en Renta | `address`, `available_area_m2`, `rooms`, `parking_spaces` | Residencial Renta. |
+  | **`CRV-`** | Casa Residencial en Venta | `address`, `available_area_m2`, `rooms`, `price_note` | Residencial Venta. |
+  | **`DRR-`** | Departamento Residencial en Renta | `address`, `available_area_m2`, `bedrooms`, `parking_spaces` | Departamento Renta. |
+  | **`DRV-`** | Departamento Residencial en Venta | `address`, `available_area_m2`, `bedrooms`, `price_note` | Departamento Venta. |
+  | **`TRV-`** | Terreno Residencial en Venta | `address`, `available_area_m2`, `price_note` | Terreno Residencial Venta. |
+
+- **Prioridad de Resoluciòn de Campos (Fallbacks Multilingües):**
+  - **Ubicación (`location`):** `property.address` -> `property.industrial_park` -> `property.location` -> `property.ubicacion`.
+  - **Superficie (`surface_area`):** `units[0].available_area_m2` -> `units[0].surface_area` -> `units[0].superficie_m2` -> `units[0].area_m2`.
+  - **Andenes (`loading_docks`):** `units[0].dock_doors` -> `units[0].andenes`.
+  - **KVA / Energía (`kva`):** `units[0].kva` -> `units[0].power_kva` -> `kva`. (Si no aplica, muestra `N/A`).
 
 ### 2.2. Creative Area (Motor de Marketing)
 - **Flujo de Usuario:**
