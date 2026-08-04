@@ -44,8 +44,6 @@ export default function CopyGenerator({ property, highlights }: CopyGeneratorPro
   ];
 
   const handleGenerateCopy = async (channel: ChannelType) => {
-    if (!property) return;
-
     setLoadingChannel((prev) => ({ ...prev, [channel]: true }));
 
     try {
@@ -53,7 +51,7 @@ export default function CopyGenerator({ property, highlights }: CopyGeneratorPro
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          property,
+          property: property || undefined,
           highlights,
           channel,
         }),
@@ -73,7 +71,6 @@ export default function CopyGenerator({ property, highlights }: CopyGeneratorPro
   };
 
   const handleGenerateAll = async () => {
-    if (!property) return;
     for (const c of channels) {
       await handleGenerateCopy(c.id);
     }
@@ -105,8 +102,7 @@ export default function CopyGenerator({ property, highlights }: CopyGeneratorPro
 
         <button
           onClick={handleGenerateAll}
-          disabled={!property}
-          className="px-4 py-2 rounded-xl bg-gradient-to-r from-ikasi-malva to-ikasi-accent text-ikasi-darkest font-semibold hover:opacity-90 disabled:opacity-40 transition-all text-xs flex items-center gap-2 shadow-lg shadow-[#cf9c8c]/10"
+          className="px-4 py-2 rounded-xl bg-ikasi-accent text-ikasi-darkest font-semibold hover:bg-[#f3e5ab] transition-all text-xs flex items-center gap-2 shadow-lg shadow-[#d4af37]/10"
         >
           <Sparkles className="w-4 h-4" /> Generar Todos los Canales
         </button>
@@ -138,58 +134,52 @@ export default function CopyGenerator({ property, highlights }: CopyGeneratorPro
       </div>
 
       {/* Panel del Canal Activo */}
-      {!property ? (
-        <div className="p-12 text-center border border-dashed border-ikasi-cool/40 rounded-xl text-ikasi-secondary text-sm">
-          Ingresa un código de propiedad arriba (ej. BIR-590) y haz clic en "Consultar" para activar la generación de copys.
-        </div>
-      ) : (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-xs uppercase tracking-wider text-ikasi-accent font-mono font-bold">
-                Canal: {channels.find((c) => c.id === activeTab)?.label}
-              </span>
-              <span className="text-[10px] px-2 py-0.5 rounded bg-ikasi-cool/40 text-ikasi-secondary">
-                {channels.find((c) => c.id === activeTab)?.badge}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => handleGenerateCopy(activeTab)}
-                disabled={loadingChannel[activeTab]}
-                className="px-3 py-1.5 rounded-lg bg-ikasi-medium border border-ikasi-cool text-ikasi-accent hover:border-ikasi-accent text-xs font-medium transition-all flex items-center gap-1.5 disabled:opacity-50"
-              >
-                {loadingChannel[activeTab] ? (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                ) : (
-                  <Sparkles className="w-3.5 h-3.5" />
-                )}
-                {copies[activeTab] ? 'Regenerar Copy' : 'Generar Copy'}
-              </button>
-
-              {copies[activeTab] && (
-                <button
-                  onClick={() => copyToClipboard(activeTab)}
-                  className="px-3 py-1.5 rounded-lg bg-ikasi-accent text-ikasi-darkest font-semibold hover:bg-[#e0ab9b] text-xs transition-all flex items-center gap-1.5"
-                >
-                  {copied[activeTab] ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                  {copied[activeTab] ? '¡Copiado!' : 'Copiar Texto'}
-                </button>
-              )}
-            </div>
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-xs uppercase tracking-wider text-ikasi-accent font-mono font-bold">
+              Canal: {channels.find((c) => c.id === activeTab)?.label}
+            </span>
+            <span className="text-[10px] px-2 py-0.5 rounded bg-ikasi-cool/40 text-ikasi-secondary">
+              {channels.find((c) => c.id === activeTab)?.badge}
+            </span>
           </div>
 
-          {/* Textarea de Edición en Vivo */}
-          <textarea
-            rows={12}
-            value={copies[activeTab]}
-            onChange={(e) => setCopies((prev) => ({ ...prev, [activeTab]: e.target.value }))}
-            placeholder={`Haz clic en "Generar Copy" para crear la redacción personalizada para ${channels.find((c) => c.id === activeTab)?.label}...`}
-            className="w-full p-4 rounded-xl bg-ikasi-darkest border border-ikasi-cool text-ikasi-primary font-mono text-xs leading-relaxed focus:outline-none focus:border-ikasi-accent resize-y"
-          />
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => handleGenerateCopy(activeTab)}
+              disabled={loadingChannel[activeTab]}
+              className="px-3.5 py-1.5 rounded-lg bg-ikasi-medium border border-ikasi-accent/40 text-ikasi-accent hover:border-ikasi-accent text-xs font-semibold transition-all flex items-center gap-1.5 disabled:opacity-50 shadow-sm"
+            >
+              {loadingChannel[activeTab] ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Sparkles className="w-3.5 h-3.5" />
+              )}
+              {copies[activeTab] ? 'Regenerar Copy' : 'Generar Copy'}
+            </button>
+
+            {copies[activeTab] && (
+              <button
+                onClick={() => copyToClipboard(activeTab)}
+                className="px-3.5 py-1.5 rounded-lg bg-ikasi-accent text-ikasi-darkest font-semibold hover:bg-[#f3e5ab] text-xs transition-all flex items-center gap-1.5 shadow-sm"
+              >
+                {copied[activeTab] ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                {copied[activeTab] ? '¡Copiado!' : 'Copiar Texto'}
+              </button>
+            )}
+          </div>
         </div>
-      )}
+
+        {/* Textarea de Edición en Vivo */}
+        <textarea
+          rows={12}
+          value={copies[activeTab]}
+          onChange={(e) => setCopies((prev) => ({ ...prev, [activeTab]: e.target.value }))}
+          placeholder={`Haz clic en "Generar Copy" para crear la redacción personalizada para ${channels.find((c) => c.id === activeTab)?.label}...`}
+          className="w-full p-4 rounded-xl bg-ikasi-darkest border border-ikasi-cool text-ikasi-primary font-mono text-xs leading-relaxed focus:outline-none focus:border-ikasi-accent resize-y"
+        />
+      </div>
     </div>
   );
 }

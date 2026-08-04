@@ -1,15 +1,16 @@
 @import "tailwindcss";
 
 :root {
-  --bg-base-darkest: #050205;
-  --bg-base-deep: #140919;
-  --bg-base-medium: #23162e;
-  --bg-base-cool: #2e2b4d;
-  --bg-base-malva: #4e325c;
+  --bg-base-darkest: #0a090e;
+  --bg-base-deep: #121018;
+  --bg-base-medium: #1a1724;
+  --bg-base-cool: #242030;
+  --bg-base-malva: #2f293d;
 
   --text-primary: #f8f8fa;
   --text-secondary: #b0afb8;
-  --accent-gold-rose: #cf9c8c;
+  --accent-gold-rose: #cf9c8c; /* Cobre Satinado / Oro Rosa Original */
+  --accent-gold-hover: #e0ab9b;
 }
 
 body {
@@ -18,6 +19,21 @@ body {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Modo Claro (Light Mode) */
+body.light-mode {
+  --bg-base-darkest: #f4f4f7;
+  --bg-base-deep: #ffffff;
+  --bg-base-medium: #eaeaf0;
+  --bg-base-cool: #d8d8e5;
+  --bg-base-malva: #c4c4db;
+
+  --text-primary: #12101a;
+  --text-secondary: #5a5666;
+  --accent-gold-rose: #b8860b;
+  --accent-gold-hover: #996515;
 }
 
 /* Custom Utilities for Ikasi Brand Palette */

@@ -1,12 +1,18 @@
 'use client';
 
+import { useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import TargetCursor from '@/components/TargetCursor';
 import PropertyTestPanel from '@/components/PropertyTestPanel';
-import { Sparkles, Image as ImageIcon, Calculator, Languages, ArrowRight, ShieldCheck, Cpu } from 'lucide-react';
+import { Sparkles, Image as ImageIcon, Calculator, Languages, ArrowRight, ShieldCheck, Cpu, User } from 'lucide-react';
 
 export default function LandingPage() {
+  // Forzar siempre Modo Oscuro en la Landing Page Principal
+  useEffect(() => {
+    document.body.classList.remove('light-mode');
+  }, []);
+
   const modules = [
     {
       title: 'Creative Area',
@@ -53,81 +59,83 @@ export default function LandingPage() {
       {/* Background Subtle Gradient Glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-b from-[#4e325c]/20 via-[#2e2b4d]/10 to-transparent blur-3xl pointer-events-none -z-0" />
 
-      {/* Top Navbar */}
-      <header className="w-full max-w-7xl mx-auto px-6 py-6 flex items-center justify-between z-10">
-        <div className="flex items-center gap-3">
-          <Image
-            src="/brand/LOGO 2022 v.004 (blanco).png"
-            alt="Ikasi Inmobiliaria Logo"
-            width={140}
-            height={40}
-            className="h-10 w-auto object-contain"
-            priority
-          />
-          <span className="text-xs uppercase tracking-widest px-2.5 py-1 rounded-full bg-ikasi-cool/60 border border-ikasi-malva/40 text-ikasi-accent font-semibold">
-            CMO Platform
-          </span>
-        </div>
+      {/* Top Navbar Permamentemente Oscuro con Acentos Cobre Satinado */}
+      <header className="w-full border-b border-[#242030] bg-black/95 backdrop-blur-md sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link href="/" className="hover:opacity-80 transition-opacity">
+              <Image
+                src="/brand/LOGO 2022 v.004 (blanco).png"
+                alt="Ikasi Inmobiliaria Logo"
+                width={140}
+                height={40}
+                className="h-9 w-auto object-contain cursor-pointer"
+                priority
+              />
+            </Link>
+            <span className="text-[11px] uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-[#1a1724] border border-[#3a2c47] text-[#cf9c8c] font-semibold">
+              CMO Platform
+            </span>
+          </div>
 
-        <div className="flex items-center gap-4">
-          <span className="flex items-center gap-2 text-xs text-ikasi-secondary bg-ikasi-deep/80 px-3 py-1.5 rounded-lg border border-ikasi-cool/40">
-            <Cpu className="w-3.5 h-3.5 text-ikasi-accent" /> MCP Connected
-          </span>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => alert('Módulo de Autenticación Corporativa (Ikasi Accounts) en desarrollo.')}
+              className="px-4 py-2 rounded-xl bg-[#cf9c8c] text-[#050205] hover:bg-[#e0ab9b] font-semibold transition-all text-xs flex items-center gap-2 shadow-md shadow-[#cf9c8c]/10"
+            >
+              <User className="w-4 h-4" /> Login
+            </button>
+          </div>
         </div>
       </header>
 
-      {/* Main Hero Section */}
-      <main className="w-full max-w-7xl mx-auto px-6 py-12 z-10 flex-1 flex flex-col justify-center">
-        <div className="text-center max-w-3xl mx-auto mb-16 space-y-6">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-ikasi-medium/80 border border-ikasi-malva/50 text-ikasi-accent text-sm tracking-wide">
-            <ShieldCheck className="w-4 h-4" /> Plataforma de Automatización de Marketing Inmobiliario
-          </div>
-          
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-tight">
-            Potencia el alcance de tus <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-ikasi-primary via-ikasi-accent to-[#e6b9ad]">
-              Propiedades Industriales
-            </span>
-          </h1>
+       {/* Hero Section */}
+      <main className="max-w-7xl mx-auto px-6 pt-12 pb-20 flex flex-col items-center text-center z-10">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#140919] border border-[#4e325c]/50 text-[#cf9c8c] text-xs font-semibold mb-8 shadow-lg">
+          <Sparkles className="w-4 h-4" /> Plataforma Inteligente de Marketing Inmobiliario
+        </div>
 
-          <p className="text-ikasi-secondary text-lg md:text-xl font-normal leading-relaxed">
-            Consumiendo la única fuente de verdad a través del MCP de <span className="text-ikasi-primary font-semibold">Ikasi Inmobiliaria®</span>. Genera assets, copys, afiches multilingües y valuaciones en segundos.
-          </p>
+        <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-[#f8f8fa] max-w-4xl leading-tight">
+          Usa la tecnología para crear <span className="text-[#cf9c8c]">nuevas oportunidades</span>
+        </h1>
 
-          {/* Panel de Validación MCP Fase 1 */}
+        <p className="mt-6 text-base md:text-lg text-[#b0afb8] max-w-2xl font-normal leading-relaxed">
+          Responde más rápido, comunica mejor y convierte cada oportunidad antes que la competencia.
+        </p>
+
+        {/* 1. Panel de Prueba MCP / Validador de Conexión (Arriba del Menú de Módulos) */}
+        <div className="mt-12 w-full max-w-3xl">
           <PropertyTestPanel />
         </div>
 
-        {/* Modules Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {modules.map((mod, idx) => {
-            const Icon = mod.icon;
+        {/* 2. Tarjetas del Menú de Módulos (Reposo Negro #050205 / Hover Cobre Satinado #CF9C8C) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12 w-full text-left">
+          {modules.map((m, idx) => {
+            const Icon = m.icon;
             return (
               <Link
                 key={idx}
-                href={mod.href}
-                className="cursor-target group relative p-6 rounded-2xl bg-ikasi-deep/70 border border-ikasi-cool/50 hover:border-ikasi-accent/60 transition-all duration-300 hover:shadow-xl hover:shadow-[#cf9c8c]/5 flex flex-col justify-between"
+                href={m.href}
+                className="group relative p-6 rounded-2xl bg-[#050205] text-[#f8f8fa] border border-[#cf9c8c]/40 hover:bg-[#cf9c8c] hover:text-[#050205] hover:border-[#e0ab9b] transition-all duration-300 hover:-translate-y-1.5 shadow-xl hover:shadow-[#cf9c8c]/20 flex flex-col justify-between"
               >
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="p-3 rounded-xl bg-ikasi-medium/80 border border-ikasi-malva/40 text-ikasi-accent group-hover:scale-110 transition-transform duration-300">
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="p-3 rounded-xl bg-[#121018] text-[#cf9c8c] border border-[#242030] group-hover:bg-[#050205] group-hover:text-[#cf9c8c] group-hover:border-[#050205] transition-colors">
                       <Icon className="w-6 h-6" />
                     </div>
-                    <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-ikasi-cool/50 text-ikasi-secondary">
-                      {mod.tag}
+                    <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-[#121018] text-[#cf9c8c] border border-[#242030] group-hover:bg-[#050205]/20 group-hover:text-[#050205] group-hover:border-[#050205]/10 transition-colors">
+                      {m.tag}
                     </span>
                   </div>
-
-                  <h3 className="text-xl font-semibold group-hover:text-ikasi-accent transition-colors">
-                    {mod.title}
+                  <h3 className="text-lg font-extrabold text-[#f8f8fa] group-hover:text-[#050205] transition-colors">
+                    {m.title}
                   </h3>
-
-                  <p className="text-sm text-ikasi-secondary leading-relaxed">
-                    {mod.description}
+                  <p className="mt-2 text-xs font-normal text-[#b0afb8] group-hover:text-[#1f1826] group-hover:font-medium leading-relaxed transition-colors">
+                    {m.description}
                   </p>
                 </div>
 
-                <div className="mt-8 flex items-center justify-between text-xs font-semibold text-ikasi-accent pt-4 border-t border-ikasi-cool/30">
+                <div className="mt-6 pt-4 border-t border-[#242030] group-hover:border-[#050205]/20 flex items-center justify-between text-xs font-bold text-[#cf9c8c] group-hover:text-[#050205] transition-colors">
                   <span>Acceder al Módulo</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </div>
@@ -137,13 +145,12 @@ export default function LandingPage() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="w-full max-w-7xl mx-auto px-6 py-8 border-t border-ikasi-cool/30 flex flex-col sm:flex-row items-center justify-between text-xs text-ikasi-secondary z-10 gap-4">
-        <p>© 2026 Ikasi Inmobiliaria®. Todos los derechos reservados.</p>
-        <div className="flex items-center gap-6">
-          <span>ikasi-cmo v1.0.0</span>
-          <span>•</span>
-          <span className="text-ikasi-accent">Industrial Realtor Tech</span>
+      {/* Footer Alineado a la Derecha con Branding de Ikasi Inmobiliaria® e Industrial Realtor® */}
+      <footer className="w-full border-t border-[#2e2b4d]/40 bg-[#050205] py-8 text-xs text-[#b0afb8]">
+        <div className="max-w-7xl mx-auto px-6 flex items-center justify-end">
+          <p className="font-medium text-right">
+            © 2026 Ikasi Inmobiliaria® • Industrial Realtor®. Todos los derechos reservados.
+          </p>
         </div>
       </footer>
     </div>

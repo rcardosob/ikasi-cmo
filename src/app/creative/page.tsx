@@ -11,6 +11,8 @@ import FlyerGenerator from '@/components/creative/FlyerGenerator';
 import CarouselGenerator from '@/components/creative/CarouselGenerator';
 import { NormalizedProperty } from '@/lib/mcp/client';
 
+import ThemeToggle from '@/components/ThemeToggle';
+
 type ModeType = 'copy' | 'images' | 'flyer' | 'carousel';
 
 export default function CreativeAreaPage() {
@@ -52,36 +54,35 @@ export default function CreativeAreaPage() {
 
   return (
     <div className="min-h-screen bg-ikasi-darkest text-ikasi-primary selection:bg-ikasi-accent selection:text-ikasi-darkest pb-16">
-      {/* Header Superior con Logotipo de Ikasi Inmobiliaria */}
-      <header className="w-full border-b border-ikasi-cool/40 bg-ikasi-deep/80 backdrop-blur-md sticky top-0 z-50">
+      {/* Header Superior Permanentemente Oscuro (Fondo Negro #000000 + Blancos + Cobre Satinado #CF9C8C) */}
+      <header className="w-full border-b border-[#242030] bg-black/95 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link
-              href="/"
-              className="p-2 rounded-xl bg-ikasi-medium/80 border border-ikasi-cool/40 text-ikasi-secondary hover:text-ikasi-accent transition-colors flex items-center gap-1.5 text-xs font-semibold"
-            >
-              <ArrowLeft className="w-4 h-4" /> Volver al Inicio
-            </Link>
-
-            <div className="h-6 w-px bg-ikasi-cool/40" />
-
-            <div className="flex items-center gap-2">
+          {/* Extremo Izquierdo: Logotipo Blanco (Link al Home /) + Badge Cobre */}
+          <div className="flex items-center gap-3">
+            <Link href="/" className="hover:opacity-80 transition-opacity">
               <Image
                 src="/brand/LOGO 2022 v.004 (blanco).png"
                 alt="Ikasi Logo"
                 width={120}
                 height={35}
-                className="h-8 w-auto object-contain"
+                className="h-8 w-auto object-contain cursor-pointer"
                 priority
               />
-              <span className="text-xs uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-ikasi-cool/60 border border-ikasi-malva/40 text-ikasi-accent font-semibold">
-                Creative Area
-              </span>
-            </div>
+            </Link>
+            <span className="text-[11px] uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-[#1a1724] border border-[#3a2c47] text-[#cf9c8c] font-semibold">
+              Creative Area
+            </span>
           </div>
 
-          <div className="flex items-center gap-2 text-xs text-ikasi-secondary">
-            <Building2 className="w-4 h-4 text-ikasi-accent" /> Motor de Marketing Inmobiliario Industrial
+          {/* Extremo Derecho: Selector de Tema (Dark/Light) + Volver al Inicio en Blancos / Cobre */}
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <Link
+              href="/"
+              className="p-2 px-3.5 rounded-xl bg-[#1a1724] border border-[#3a2c47] text-[#f8f8fa] hover:border-[#cf9c8c] hover:text-[#cf9c8c] transition-all flex items-center gap-1.5 text-xs font-semibold shadow-sm"
+            >
+              <ArrowLeft className="w-4 h-4 text-[#cf9c8c]" /> Volver al Inicio
+            </Link>
           </div>
         </div>
       </header>

@@ -5,7 +5,7 @@ import { Search, Mic, MicOff, Upload, Image as ImageIcon, CheckCircle2, Loader2,
 import { NormalizedProperty } from '@/lib/mcp/client';
 
 interface PropertyInputHeaderProps {
-  onPropertyLoaded: (property: NormalizedProperty) => void;
+  onPropertyLoaded: (property: NormalizedProperty | null) => void;
   onHighlightsChanged: (highlights: string) => void;
   onImagesUploaded: (imagesBase64: string[]) => void;
 }
@@ -20,6 +20,17 @@ export default function PropertyInputHeader({
   const [property, setProperty] = useState<NormalizedProperty | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [highlights, setHighlights] = useState('');
+
+  const handleReset = () => {
+    setCode('');
+    setProperty(null);
+    setHighlights('');
+    setImages([]);
+    setError(null);
+    onPropertyLoaded(null);
+    onHighlightsChanged('');
+    onImagesUploaded([]);
+  };
 
   // Estados para Dictado por Voz (Web Speech API)
   const [isListening, setIsListening] = useState(false);
@@ -166,21 +177,30 @@ export default function PropertyInputHeader({
   return (
     <div className="w-full bg-ikasi-deep/90 border border-ikasi-cool/60 rounded-2xl p-6 shadow-2xl space-y-6">
       {/* Search Header */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-ikasi-cool/40 pb-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-ikasi-cool/40 pb-4">
         <div>
           <h2 className="text-xl font-bold text-ikasi-primary flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-ikasi-accent" /> Ingesta de Datos para Material de Marketing
           </h2>
           <p className="text-xs text-ikasi-secondary">
-            Consumiendo ficha técnica del MCP de Ikasi Inmobiliaria® + Aspectos Destacados
+            Consumiendo ficha técnica del MCP o ingresando notas/fotos para una propiedad urgente
           </p>
         </div>
 
-        {property && (
-          <span className="text-xs px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-semibold flex items-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4" /> {property.property_code} Cargada
-          </span>
-        )}
+        <div className="flex items-center gap-3">
+          {property && (
+            <span className="text-xs px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-semibold flex items-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4" /> {property.property_code}
+            </span>
+          )}
+
+          <button
+            onClick={handleReset}
+            className="px-3.5 py-1.5 rounded-xl bg-ikasi-medium border border-ikasi-accent/50 text-ikasi-accent hover:bg-ikasi-accent hover:text-ikasi-darkest font-semibold transition-all text-xs flex items-center gap-1.5 shadow-sm"
+          >
+            <Sparkles className="w-3.5 h-3.5" /> Nueva Propiedad
+          </button>
+        </div>
       </div>
 
       {/* Inputs Grid */}

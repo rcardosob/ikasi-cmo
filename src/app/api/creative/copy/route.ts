@@ -5,31 +5,36 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { property, highlights, channel } = body as {
-      property: NormalizedProperty;
+      property?: NormalizedProperty;
       highlights?: string;
       channel: 'linkedin' | 'portals' | 'tiktok' | 'social' | 'whatsapp';
     };
 
-    if (!property) {
-      return NextResponse.json({ success: false, error: 'Falta la propiedad' }, { status: 400 });
-    }
+    // Propiedad por defecto si no viene código de propiedad del MCP (Propiedad Manual)
+    const effectiveProperty: NormalizedProperty = property || {
+      property_code: 'NUEVA-PROP',
+      title: 'PROPIEDAD INDUSTRIAL EN PROMOCIÓN',
+      type: 'Industrial',
+      location: 'Ubicación Inmobiliaria Destacada',
+      surface_area: null,
+      height_m: null,
+      loading_docks: null,
+      ramps: null,
+      kva: null,
+      price_note: 'Consultar condiciones',
+      raw: {},
+    };
 
-    // Prompts especializados según la audiencia del canal
-    let promptInstruction = '';
     const propDetails = `
-Código: ${property.property_code}
-Título: ${property.title}
-Tipo: ${property.type}
-Ubicación: ${property.location}
-Superficie: ${property.surface_area ? property.surface_area + ' m²' : 'N/A'}
-Altura Libre: ${property.height_m ? property.height_m + ' m' : 'N/A'}
-Andenes: ${property.loading_docks !== null ? property.loading_docks : 'N/A'}
-Rampas: ${property.ramps !== null ? property.ramps : 'N/A'}
-KVA: ${property.kva !== null ? property.kva : 'N/A'}
-Nota de Precio: ${property.price_note || 'Consultar'}
-Aspectos Destacados / Notas: ${highlights || 'Ninguno'}
+Código: ${effectiveProperty.property_code}
+Título: ${effectiveProperty.title}
+Tipo: ${effectiveProperty.type}
+Ubicación: ${effectiveProperty.location}
+Superficie: ${effectiveProperty.surface_area ? effectiveProperty.surface_area + ' m²' : 'N/A'}
+Aspectos Destacados / Notas: ${highlights || 'Promoción directa de propiedad industrial'}
 `;
 
+    let promptInstruction = '';
     switch (channel) {
       case 'linkedin':
         promptInstruction = `
@@ -71,7 +76,7 @@ Usa viñetas breves con los datos clave más importantes (Superficie, Ubicación
     }
 
     // Si hay llaves de API externas configuradas en el entorno se usan; de lo contrario generamos plantilla inteligente bien formateada
-    const generatedCopy = generateStructuredFallbackCopy(channel, property, highlights);
+    const generatedCopy = generateStructuredFallbackCopy(channel, effectiveProperty, highlights);
 
     return NextResponse.json({
       success: true,
