@@ -79,7 +79,33 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ---
 
-## 4. Reglas para Futuros Agentes de IA
+## 5. Política Oficial de Diseño Visual y Sistema de Colores (Branding Ikasi®)
+
+Todos los futuros agentes y desarrolladores que trabajen en `ikasi-cmo` deben respetar estrictamente este sistema de diseño adaptativo:
+
+### 🎨 Paleta de Colores Oficial
+- **Negro Absoluto (`#050205` / `#0A090E`):** Color de fondo base corporativo en Modo Oscuro y headers de la plataforma.
+- **Cobre Satinado / Oro Rosa (`#CF9C8C`):** Color de acento primario corporativo para botones activos, bordes destacados, badges y enlaces principales.
+- **Blanco Puro (`#FFFFFF` / `#F8F8FA`):** Color de contraste en Modo Claro y tipografía principal sobre superficies oscuras.
+
+---
+
+### 🌗 Reglas de Comportamiento por Tema (Dark vs Light Mode)
+
+#### 1. Header de la Plataforma
+- **Regla Invariable:** El header superior permanece **permanentemente en negro absoluto (`bg-black/95`)** en ambos modos. Logotipo siempre en blanco con link interactivo al Home (`/`), botón de Login en Cobre Satinado y leyendas de branding en blanco/cobre.
+
+#### 2. Botones de Modos e Interactivos Principales
+- **En MODO OSCURO (Dark Mode):**
+  - **Estado Inactivo (Reposo):** Fondo **Negro Absoluto (`#050205`)** con bordes e iconos en **Cobre Satinado (`#CF9C8C`)**.
+  - **Estado Activo / Hover (Seleccionado):** Fondo **Cobre Satinado (`#CF9C8C`)** de alto impacto con tipografía e icono en negro profundo (`#050205`).
+- **En MODO CLARO (Light Mode):**
+  - **Estado Inactivo (Reposo):** Fondo **Blanco Puro (`#FFFFFF`)** con tipografía oscura y bordes suaves.
+  - **Estado Activo / Hover (Seleccionado):** Fondo **Negro Absoluto (`#050205`)** con iconos y badges en **Cobre Satinado (`#CF9C8C`)**.
+
+---
+
+## 6. Reglas para Futuros Agentes de IA
 
 1. **Nombre del Proyecto:** Usar siempre `ikasi-cmo`.
 2. **Seguridad:** NUNCA harcodear ni subir en commits tokens del MCP o credenciales de PostgreSQL. Usar variables de entorno (`.env`).

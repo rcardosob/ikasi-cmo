@@ -11,16 +11,21 @@ export default function ThemeToggle() {
     if (savedTheme === 'light') {
       setIsLight(true);
       document.body.classList.add('light-mode');
+      document.documentElement.classList.remove('dark');
+    } else {
+      document.documentElement.classList.add('dark');
     }
   }, []);
 
   const toggleTheme = () => {
     if (isLight) {
       document.body.classList.remove('light-mode');
+      document.documentElement.classList.add('dark');
       localStorage.setItem('ikasi-theme', 'dark');
       setIsLight(false);
     } else {
       document.body.classList.add('light-mode');
+      document.documentElement.classList.remove('dark');
       localStorage.setItem('ikasi-theme', 'light');
       setIsLight(true);
     }

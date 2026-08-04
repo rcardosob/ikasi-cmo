@@ -1,17 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Sparkles, Image as ImageIcon, FileText, Layers, Building2 } from 'lucide-react';
+import { ArrowLeft, Sparkles, Image as ImageIcon, FileText, Layers } from 'lucide-react';
 import PropertyInputHeader from '@/components/creative/PropertyInputHeader';
 import CopyGenerator from '@/components/creative/CopyGenerator';
 import ImageGenerator from '@/components/creative/ImageGenerator';
 import FlyerGenerator from '@/components/creative/FlyerGenerator';
 import CarouselGenerator from '@/components/creative/CarouselGenerator';
-import { NormalizedProperty } from '@/lib/mcp/client';
-
 import ThemeToggle from '@/components/ThemeToggle';
+import { NormalizedProperty } from '@/lib/mcp/client';
 
 type ModeType = 'copy' | 'images' | 'flyer' | 'carousel';
 
@@ -20,6 +19,21 @@ export default function CreativeAreaPage() {
   const [highlights, setHighlights] = useState('');
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [activeMode, setActiveMode] = useState<ModeType>('copy');
+  const [isLightMode, setIsLightMode] = useState(false);
+
+  // Escuchar si la aplicación está en Modo Claro u Oscuro
+  useEffect(() => {
+    const checkTheme = () => {
+      setIsLightMode(document.body.classList.contains('light-mode'));
+    };
+
+    checkTheme();
+
+    const observer = new MutationObserver(checkTheme);
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+    return () => observer.disconnect();
+  }, []);
 
   const modes: { id: ModeType; label: string; desc: string; icon: React.ElementType; badge: string }[] = [
     {
@@ -96,34 +110,63 @@ export default function CreativeAreaPage() {
           onImagesUploaded={setUploadedImages}
         />
 
-        {/* 2. Selector de Los 4 Modos de Generación (Botones Principales) */}
+        {/* 2. Selector de Los 4 Modos de Generación (ESTILOS GARANTIZADOS POR REACT STATE) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {modes.map((m) => {
             const Icon = m.icon;
             const isActive = activeMode === m.id;
 
+            // Determinar estilo exacto usando JavaScript directo
+            let buttonStyle = '';
+            let iconStyle = '';
+            let badgeStyle = '';
+
+            if (isLightMode) {
+              // MODO CLARO
+              if (isActive) {
+                // Modo Claro + Seleccionado -> Fondo Negro Absoluto + Borde Cobre
+                buttonStyle = 'bg-[#050205] text-[#f8f8fa] border-[#cf9c8c] -translate-y-1 shadow-2xl';
+                iconStyle = 'bg-[#cf9c8c] text-[#050205] border-[#cf9c8c]';
+                badgeStyle = 'bg-[#cf9c8c] text-[#050205] border-[#cf9c8c]';
+              } else {
+                // Modo Claro + Inactivo -> Fondo Blanco + Texto Oscuro
+                buttonStyle = 'bg-white text-[#12101a] border-slate-200 hover:bg-[#050205] hover:text-[#f8f8fa] hover:border-[#cf9c8c] hover:-translate-y-1';
+                iconStyle = 'bg-slate-100 text-slate-700 border-slate-200';
+                badgeStyle = 'bg-slate-100 text-slate-600 border-slate-200';
+              }
+            } else {
+              // MODO OSCURO
+              if (isActive) {
+                // Modo Oscuro + Seleccionado -> Fondo Cobre Satinado + Texto Oscuro
+                buttonStyle = 'bg-[#cf9c8c] text-[#050205] border-[#e0ab9b] -translate-y-1 shadow-2xl shadow-[#cf9c8c]/20';
+                iconStyle = 'bg-[#050205] text-[#cf9c8c] border-[#050205]';
+                badgeStyle = 'bg-[#050205]/20 text-[#050205] border-[#050205]/10';
+              } else {
+                // Modo Oscuro + Inactivo -> Fondo Negro Absoluto + Borde Cobre
+                buttonStyle = 'bg-[#050205] text-[#f8f8fa] border-[#cf9c8c]/40 hover:bg-[#cf9c8c] hover:text-[#050205] hover:border-[#e0ab9b] hover:-translate-y-1';
+                iconStyle = 'bg-[#121018] text-[#cf9c8c] border-[#242030]';
+                badgeStyle = 'bg-[#121018] text-[#cf9c8c] border-[#242030]';
+              }
+            }
+
             return (
               <button
                 key={m.id}
                 onClick={() => setActiveMode(m.id)}
-                className={`p-5 rounded-2xl border text-left transition-all flex flex-col justify-between space-y-3 ${
-                  isActive
-                    ? 'bg-ikasi-medium border-ikasi-accent shadow-xl shadow-[#cf9c8c]/10 text-ikasi-accent'
-                    : 'bg-ikasi-deep/70 border-ikasi-cool/50 text-ikasi-secondary hover:border-ikasi-malva hover:text-ikasi-primary'
-                }`}
+                className={`p-5 rounded-2xl border text-left transition-all duration-300 flex flex-col justify-between space-y-3 shadow-xl ${buttonStyle}`}
               >
                 <div className="flex items-center justify-between">
-                  <div className={`p-2.5 rounded-xl border ${isActive ? 'bg-ikasi-cool border-ikasi-accent text-ikasi-accent' : 'bg-ikasi-darkest border-ikasi-cool text-ikasi-secondary'}`}>
+                  <div className={`p-2.5 rounded-xl border transition-colors ${iconStyle}`}>
                     <Icon className="w-5 h-5" />
                   </div>
-                  <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-ikasi-cool/50 text-ikasi-secondary">
+                  <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border transition-colors ${badgeStyle}`}>
                     {m.badge}
                   </span>
                 </div>
 
                 <div>
-                  <h4 className="font-bold text-sm text-ikasi-primary">{m.label}</h4>
-                  <p className="text-xs text-ikasi-secondary mt-1">{m.desc}</p>
+                  <h4 className="font-extrabold text-sm transition-colors">{m.label}</h4>
+                  <p className="text-xs mt-1 transition-colors opacity-90">{m.desc}</p>
                 </div>
               </button>
             );

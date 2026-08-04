@@ -6,9 +6,23 @@
 
 ---
 
-## 1. Arquitectura General del Sistema
+## 1. Arquitectura General y Sistema de Diseño Visual
 
-`ikasi-cmo` se diseñará como una plataforma web moderna, rápida y responsiva.
+### 🎨 Paleta de Colores y Guía de Estilo Corporativa (Ikasi®)
+- **Negro Absoluto (`#050205` / `#0A090E`):** Fondo base en Modo Oscuro y headers permanentes de la plataforma.
+- **Cobre Satinado / Oro Rosa (`#CF9C8C`):** Acento corporativo primario para botones activos, bordes destacados e iconos.
+- **Blanco Puro (`#FFFFFF` / `#F8F8FA`):** Color de contraste en Modo Claro y textos principales.
+
+### 🌗 Reglas de Comportamiento por Tema (Dark vs Light Mode)
+1. **Header Superior:** Permanentemente en negro absoluto (`bg-black/95`) en ambos temas. Logotipo en blanco que enlaza al inicio (`/`) y botón de Login en Cobre Satinado.
+2. **Interactivos en Modo Oscuro:** Inactivo en Fondo Negro (`#050205`) con bordes Cobre; Activo/Hover en Cobre Satinado (`#CF9C8C`) con texto negro.
+3. **Interactivos en Modo Claro:** Inactivo en Fondo Blanco (`#FFFFFF`); Activo/Hover en Negro Absoluto (`#050205`) con iconos Cobre Satinado.
+
+---
+
+## 2. Integración con el MCP de Inventario (FastMCP)
+
+`ikasi-cmo` está diseñado como una plataforma web moderna, rápida y responsiva.
 
 ```
                   ┌─────────────────────────────────────────┐
