@@ -1,15 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { Copy, Check, Sparkles, Loader2, Share2, Building2, Linkedin, Video, Instagram, MessageSquare } from 'lucide-react';
+import { Copy, Check, Sparkles, Loader2, Building2, Linkedin, Video, Instagram, MessageSquare, AlertTriangle } from 'lucide-react';
 import { NormalizedProperty } from '@/lib/mcp/client';
+import { ChannelType } from '@/lib/copy/prompts';
 
 interface CopyGeneratorProps {
   property: NormalizedProperty | null;
   highlights: string;
 }
-
-type ChannelType = 'linkedin' | 'portals' | 'tiktok' | 'social' | 'whatsapp';
 
 export default function CopyGenerator({ property, highlights }: CopyGeneratorProps) {
   const [activeTab, setActiveTab] = useState<ChannelType>('linkedin');
@@ -34,6 +33,7 @@ export default function CopyGenerator({ property, highlights }: CopyGeneratorPro
     social: false,
     whatsapp: false,
   });
+  const [warning, setWarning] = useState<string | null>(null);
 
   const channels: { id: ChannelType; label: string; icon: React.ElementType; badge: string }[] = [
     { id: 'linkedin', label: 'LinkedIn', icon: Linkedin, badge: 'C-Level & B2B' },
@@ -45,6 +45,7 @@ export default function CopyGenerator({ property, highlights }: CopyGeneratorPro
 
   const handleGenerateCopy = async (channel: ChannelType) => {
     setLoadingChannel((prev) => ({ ...prev, [channel]: true }));
+    setWarning(null);
 
     try {
       const res = await fetch('/api/creative/copy', {
@@ -60,6 +61,7 @@ export default function CopyGenerator({ property, highlights }: CopyGeneratorPro
       const json = await res.json();
       if (json.success) {
         setCopies((prev) => ({ ...prev, [channel]: json.copy }));
+        if (json.warning) setWarning(json.warning);
       } else {
         alert(json.error || 'Error al generar copy');
       }
@@ -135,6 +137,16 @@ export default function CopyGenerator({ property, highlights }: CopyGeneratorPro
 
       {/* Panel del Canal Activo */}
       <div className="space-y-4">
+        {warning && (
+          <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-start gap-2.5">
+            <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+            <div>
+              <p className="font-semibold text-amber-300">Generación degradada</p>
+              <p className="text-amber-200/90 mt-0.5">{warning}</p>
+            </div>
+          </div>
+        )}
+
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <span className="text-xs uppercase tracking-wider text-ikasi-accent font-mono font-bold">

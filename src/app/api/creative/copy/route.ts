@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { NormalizedProperty } from '@/lib/mcp/client';
+import { buildCopyPrompt, ChannelType, CHANNEL_LABELS } from '@/lib/copy/prompts';
+import { callDeepSeek, callOpenAILuna } from '@/lib/llm/client';
+import { sendPushoverAlert } from '@/lib/notifications/pushover';
+
+const CHANNELS: ChannelType[] = ['linkedin', 'portals', 'tiktok', 'social', 'whatsapp'];
 
 export async function POST(request: NextRequest) {
   try {
@@ -7,8 +12,15 @@ export async function POST(request: NextRequest) {
     const { property, highlights, channel } = body as {
       property?: NormalizedProperty;
       highlights?: string;
-      channel: 'linkedin' | 'portals' | 'tiktok' | 'social' | 'whatsapp';
+      channel: ChannelType;
     };
+
+    if (!channel || !CHANNELS.includes(channel)) {
+      return NextResponse.json(
+        { success: false, error: `Canal inválido. Debe ser uno de: ${CHANNELS.join(', ')}` },
+        { status: 400 }
+      );
+    }
 
     // Propiedad por defecto si no viene código de propiedad del MCP (Propiedad Manual)
     const effectiveProperty: NormalizedProperty = property || {
@@ -25,64 +37,69 @@ export async function POST(request: NextRequest) {
       raw: {},
     };
 
-    const propDetails = `
-Código: ${effectiveProperty.property_code}
-Título: ${effectiveProperty.title}
-Tipo: ${effectiveProperty.type}
-Ubicación: ${effectiveProperty.location}
-Superficie: ${effectiveProperty.surface_area ? effectiveProperty.surface_area + ' m²' : 'N/A'}
-Aspectos Destacados / Notas: ${highlights || 'Promoción directa de propiedad industrial'}
-`;
+    const { system, user } = buildCopyPrompt(channel, effectiveProperty, highlights);
+    const propertyCode = effectiveProperty.property_code;
+    let deepSeekErrorMsg = '';
+    let openAIFallbackErrorMsg = '';
 
-    let promptInstruction = '';
-    switch (channel) {
-      case 'linkedin':
-        promptInstruction = `
-Eres el Chief Marketing Officer de Ikasi Inmobiliaria®. Redacta una publicación profesional y ejecutiva para LinkedIn dirigida a C-Levels, Directores de Logística y Gerentes de Expansión Corporativa.
-Destaca el retorno de inversión, ventajas estratégicas de conectividad industrial y la infraestructura técnica. Usa un tono de alto nivel, párrafos ejecutivos y hashtags B2B relevantes.
-`;
-        break;
-
-      case 'portals':
-        promptInstruction = `
-Eres un especialista en Portales Inmobiliarios Industriales (Inmuebles24, Vivanuncios, Lamudi, etc.). Redacta una ficha descriptiva comercial-operativa enfocada en dueños de negocio y gerentes de operaciones.
-Destaca usos de suelo, accesibilidad de transporte pesado, servicios de la zona y facilidades diarias. Usa estructura limpia con viñetas claras.
-`;
-        break;
-
-      case 'tiktok':
-        promptInstruction = `
-Eres un creador de contenido inmobiliario de alta tendencia en TikTok. Diseña un guion/caption ultra dinámico para TikTok.
-Debe iniciar con un HOOK o gancho irresistible en los primeros 3 segundos (ej. "¡Esta nave industrial tiene algo que casi ninguna en la zona ofrece!"). Incluye emojis visuales, ritmo ágil, indicaciones de texto en pantalla y un Call to Action llamativo.
-`;
-        break;
-
-      case 'social':
-        promptInstruction = `
-Eres un experto en Instagram y Facebook Reels/Feed para el sector inmobiliario de lujo e industrial.
-Crea una publicación atractiva con storytelling, párrafos legibles con espacio en blanco, emojis bien ubicados, beneficios principales del inmueble y llamada a la acción para agendar visita por mensaje directo.
-`;
-        break;
-
-      case 'whatsapp':
-        promptInstruction = `
-Redacta un mensaje de WhatsApp / Historia corto, directo y de alto impacto para enviar a clientes o publicar en Estados de WhatsApp.
-Usa viñetas breves con los datos clave más importantes (Superficie, Ubicación, KVA/Andenes, Precio) y una llamada inmediata a solicitar la ficha técnica o agendar llamada.
-`;
-        break;
-
-      default:
-        promptInstruction = 'Redacta un copy comercial inmobiliario atractivo.';
+    // Nivel 1: DeepSeek
+    try {
+      const result = await callDeepSeek(system, user);
+      return NextResponse.json({
+        success: true,
+        channel,
+        copy: result.text,
+        provider: result.provider,
+        promptUsed: system,
+      });
+    } catch (deepSeekError) {
+      deepSeekErrorMsg = deepSeekError instanceof Error ? deepSeekError.message : String(deepSeekError);
+      console.warn('[copy] DeepSeek falló, intentando fallback OpenAI:', deepSeekErrorMsg);
     }
 
-    // Si hay llaves de API externas configuradas en el entorno se usan; de lo contrario generamos plantilla inteligente bien formateada
-    const generatedCopy = generateStructuredFallbackCopy(channel, effectiveProperty, highlights);
+    // Nivel 2: Fallback OpenAI gpt-5.6-luna
+    try {
+      const result = await callOpenAILuna(system, user);
+      await sendPushoverAlert({
+        title: `⚠️ Copy ${propertyCode} generado con FALLBACK`,
+        message: `Canal ${CHANNEL_LABELS[channel]}. DeepSeek falló; se usó el fallback OpenAI (${result.provider}). El copy se generó correctamente. Error DeepSeek: ${deepSeekErrorMsg}`,
+        priority: 1,
+      });
+      return NextResponse.json({
+        success: true,
+        channel,
+        copy: result.text,
+        provider: result.provider,
+        fallback: true,
+        alertSent: true,
+        promptUsed: system,
+      });
+    } catch (openAIFallbackError) {
+      openAIFallbackErrorMsg =
+        openAIFallbackError instanceof Error ? openAIFallbackError.message : String(openAIFallbackError);
+      console.warn('[copy] Fallback OpenAI también falló:', openAIFallbackErrorMsg);
+    }
+
+    // Nivel 3: Ambos LLM fallaron -> alerta Pushover #2 + plantilla local
+    const fallbackCopy = generateStructuredFallbackCopy(channel, effectiveProperty, highlights);
+
+    const warning = `Ambos proveedores de IA fallaron (DeepSeek y OpenAI). Se generó un copy con plantilla local.`;
+
+    await sendPushoverAlert({
+      title: `🔴 DOBLE FALLA: copy ${propertyCode}`,
+      message: `Canal ${CHANNEL_LABELS[channel]}. DeepSeek y el fallback OpenAI (gpt-5.6-luna) fallaron. Se entregó plantilla local para no dejar vacía la UI. DeepSeek: ${deepSeekErrorMsg} | OpenAI: ${openAIFallbackErrorMsg}`,
+      priority: 2,
+    });
 
     return NextResponse.json({
       success: true,
       channel,
-      copy: generatedCopy,
-      promptUsed: promptInstruction,
+      copy: fallbackCopy,
+      provider: 'fallback-template',
+      fallback: true,
+      alertSent: true,
+      warning,
+      promptUsed: system,
     });
   } catch (err) {
     return NextResponse.json(
@@ -93,7 +110,7 @@ Usa viñetas breves con los datos clave más importantes (Superficie, Ubicación
 }
 
 function generateStructuredFallbackCopy(
-  channel: string,
+  channel: ChannelType,
   p: NormalizedProperty,
   highlights?: string
 ): string {
